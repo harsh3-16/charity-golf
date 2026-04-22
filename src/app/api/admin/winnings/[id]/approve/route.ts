@@ -1,0 +1,53 @@
+import { NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
+
+export async function PATCH(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const supabase = await createClient();
+
+    // 1. Admin check
+    const { data: { user: adminUser } } = await supabase.auth.getUser();
+    if (!adminUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const { data: adminProfile } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', adminUser.id)
+      .single();
+
+    if (adminProfile?.role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const { id } = await params;
+
+    // 2. Update verification status
+    const { data: verification, error: verError } = await supabase
+      .from('winner_verifications')
+      .update({
+        admin_status: 'approved',
+        reviewed_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select('draw_entry_id')
+      .single();
+
+    if (verError) throw verError;
+
+    // 3. Update draw entry payment status
+    const { error: entryError } = await supabase
+      .from('draw_entries')
+      .update({ payment_status: 'paid' })
+      .eq('id', verification.draw_entry_id);
+
+    if (entryError) console.error('[admin_winnings_approve] Error updating entry:', entryError);
+
+    return NextResponse.json({ success: true });
+  } catch (err: any) {
+    console.error('[admin_winnings_approve] Error:', err);
+    return NextResponse.json({ error: err.message || 'Internal Server Error' }, { status: 500 });
+  }
+}
