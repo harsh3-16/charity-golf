@@ -58,13 +58,14 @@ export default function DashboardPage() {
     return () => controller.abort();
   }, []);
 
-  useEffect(() => {
-    if (showCharityModal && subStatus) {
+  const handleOpenCharityModal = () => {
+    setShowCharityModal(true);
+    if (subStatus) {
       getCharities({ url: apiUrls.charities.list });
       setSelectedCharityId(subStatus.charity?.id || '');
       setPercentage(subStatus.percentage || 10);
     }
-  }, [showCharityModal, getCharities, subStatus]);
+  };
 
   const handleUpdateCharity = async () => {
     await updateCharity({
@@ -240,7 +241,7 @@ export default function DashboardPage() {
         {/* Charity Spotlight */}
         <div className="p-8 rounded-3xl bg-gradient-to-br from-emerald-500 to-blue-600 group relative cursor-pointer overflow-hidden">
            <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20">
-              <CustomButton variant="secondary" size="sm" onClick={() => setShowCharityModal(true)}>Manage Selection</CustomButton>
+              <CustomButton variant="secondary" size="sm" onClick={handleOpenCharityModal}>Manage Selection</CustomButton>
            </div>
            
            <div className="relative z-10 flex flex-col h-full">
