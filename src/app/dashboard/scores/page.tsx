@@ -77,6 +77,7 @@ export default function ScoresPage() {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<ScoreFormValues>({
     resolver: zodResolver(scoreSchema),

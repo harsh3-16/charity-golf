@@ -235,10 +235,10 @@ export default function AdminCharitiesPage() {
 
       <CustomAlertModal 
         isOpen={!!deleteTarget}
-        onClose={() => setDeleteTarget(null)}
+        onCancel={() => setDeleteTarget(null)}
         onConfirm={handleConfirmDelete}
         title="Delete Charity?"
-        description="This action cannot be undone. All associated donation records will be preserved but the charity will be removed from future selection."
+        message="This action cannot be undone. All associated donation records will be preserved but the charity will be removed from future selection."
         loading={deleting}
       />
     </div>

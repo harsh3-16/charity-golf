@@ -37,7 +37,7 @@ export async function GET() {
     const colors = ['emerald', 'rose', 'blue', 'amber', 'purple', 'cyan'];
 
     userSplits?.forEach((u, i) => {
-      const name = u.charities?.name || 'Unknown';
+      const name = (u.charities as any)?.[0]?.name || 'Unknown';
       if (!charityMap[name]) {
         charityMap[name] = { 
           name, 

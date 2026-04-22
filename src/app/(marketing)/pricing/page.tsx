@@ -101,7 +101,7 @@ export default function PricingPage() {
               <Link href="/signup">
                 <CustomButton 
                   className="w-full" 
-                  variant={plan.popular ? 'default' : 'outline'}
+                  variant={plan.popular ? 'primary' : 'outline'}
                 >
                   {plan.cta}
                 </CustomButton>
