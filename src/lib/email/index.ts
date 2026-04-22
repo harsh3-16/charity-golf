@@ -1,9 +1,25 @@
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let transporter: nodemailer.Transporter | null = null;
+
+function getTransporter() {
+  if (!transporter) {
+    transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || 'smtp.example.com',
+      port: parseInt(process.env.SMTP_PORT || '587', 10),
+      secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
+      auth: {
+        user: process.env.SMTP_USER || 'user',
+        pass: process.env.SMTP_PASS || 'pass',
+      },
+    });
+  }
+  return transporter;
+}
 
 export async function sendWelcomeEmail(email: string, name: string) {
-  return resend.emails.send({
+  const mail = getTransporter();
+  return mail.sendMail({
     from: 'Charity Golf <onboarding@charitygolf.com>',
     to: email,
     subject: 'Welcome to the Impact! ⛳️',
@@ -12,16 +28,18 @@ export async function sendWelcomeEmail(email: string, name: string) {
 }
 
 export async function sendDrawPublishedEmail(emails: string[], month: string) {
-  return resend.emails.send({
+  const mail = getTransporter();
+  return mail.sendMail({
     from: 'Charity Golf <draws@charitygolf.com>',
-    to: emails,
+    to: emails.join(', '),
     subject: `Results are in for the ${month} Draw! 🏆`,
     html: `<h1>The results are out!</h1><p>Head to your dashboard to see if you've matched this month's winning numbers.</p>`,
   });
 }
 
 export async function sendWinnerAlert(email: string, amount: string) {
-  return resend.emails.send({
+  const mail = getTransporter();
+  return mail.sendMail({
     from: 'Charity Golf <payouts@charitygolf.com>',
     to: email,
     subject: `YOU WON! 🎊`,
