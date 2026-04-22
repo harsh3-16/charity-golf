@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase/admin';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 export async function GET() {
   try {
+    const supabaseAdmin = createAdminClient();
     // 1. Seed Charities
     const charities = [
       {

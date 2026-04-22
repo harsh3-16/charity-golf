@@ -1,14 +1,11 @@
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { createAdminClient } from '@/lib/supabase/admin';
 
 export async function generateDrawNumbers(mode: 'hot' | 'cold' | 'random') {
   if (mode === 'random') {
     return Array.from({ length: 5 }, () => Math.floor(Math.random() * 45) + 1);
   }
+
+  const supabaseAdmin = createAdminClient();
 
   // Fetch all user scores for the calculation
   const { data: scores, error } = await supabaseAdmin
