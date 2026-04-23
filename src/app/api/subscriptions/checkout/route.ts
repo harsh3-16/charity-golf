@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe';
+import { getStripe } from '@/lib/stripe';
 import { createClient } from '@/lib/supabase/server';
 
 export async function POST(req: Request) {
@@ -19,6 +19,8 @@ export async function POST(req: Request) {
       .select('email, full_name')
       .eq('id', user.id)
       .single();
+
+    const stripe = getStripe();
 
     // In a real app, you'd check if they already have a stripe_customer_id
     // For this demo, we'll create a new one or use their email
