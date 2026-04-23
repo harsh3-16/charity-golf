@@ -25,8 +25,8 @@ BEGIN
   -- 1. Update user subscription status
   UPDATE public.users
   SET
-    subscription_status      = 'active',
-    subscription_plan        = p_plan,
+    subscription_status      = 'active'::public.subscription_status,
+    subscription_plan        = p_plan::public.subscription_plan,
     charity_id               = p_charity_id,
     subscription_renewal_date = p_renewal_date
   WHERE id = p_user_id;
@@ -49,7 +49,7 @@ BEGIN
     p_stripe_subscription_id,
     p_stripe_customer_id,
     p_plan,
-    'active',
+    'active'::public.subscription_status,
     p_period_start,
     p_period_end
   );
@@ -72,12 +72,12 @@ AS $$
 BEGIN
   -- 1. Update user status
   UPDATE public.users
-  SET subscription_status = 'lapsed'
+  SET subscription_status = 'lapsed'::public.subscription_status
   WHERE id = p_user_id;
 
   -- 2. Update subscription record
   UPDATE public.subscriptions
-  SET status = 'lapsed'
+  SET status = 'lapsed'::public.subscription_status
   WHERE stripe_subscription_id = p_stripe_subscription_id;
 END;
 $$;

@@ -16,8 +16,9 @@ import {
   X,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
+import { RootState } from '@/store';
 import { logout } from '@/store/authSlice';
 import { usePostQuery } from '@/hooks/useApi';
 import { apiUrls } from '@/lib/apiUrls';
@@ -120,6 +121,7 @@ function SidebarContent({
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user } = useSelector((state: RootState) => state.auth);
 
   const activeLabel = MENU_ITEMS.find((i) => i.href === pathname)?.label || 'Settings';
 
@@ -191,12 +193,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             <div className="flex items-center gap-3 ml-2">
               <div className="text-right hidden sm:block">
-                <div className="text-sm font-bold">Harsh Arora</div>
+                <div className="text-sm font-bold">{user?.full_name || 'Member'}</div>
                 <div className="text-[10px] text-emerald-500 font-bold uppercase tracking-widest">
-                  Active Plan
+                  {user?.subscription_plan || 'No Active'} Plan
                 </div>
               </div>
-              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-500 to-blue-500 border-2 border-black shadow-lg" />
+              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-500 to-blue-500 border-2 border-black shadow-lg overflow-hidden">
+                {user?.avatar_url ? (
+                  <img src={user.avatar_url} alt={user.full_name || ''} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-xs font-bold text-white uppercase">
+                    {(user?.full_name || 'M').charAt(0)}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </header>

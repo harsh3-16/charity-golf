@@ -11,7 +11,6 @@ export function getStripe() {
       console.warn('STRIPE_SECRET_KEY is not defined');
     }
     stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy', {
-      apiVersion: '2025-01-27' as any, // Latest as of my training, or use '2024-06-20'
       typescript: true,
     });
   }

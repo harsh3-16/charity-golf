@@ -95,8 +95,11 @@ export default function SignupPage() {
 
   const prevStep = () => setStep(s => s - 1);
 
+  const { postQuery: startCheckout, loading: checkoutLoading } = usePostQuery();
+
   const onSubmit = async (data: SignupFormValues) => {
     try {
+      // 1. Register the user in Supabase
       const response = await postQuery({
         url: apiUrls.auth.register,
         body: data
@@ -107,8 +110,24 @@ export default function SignupPage() {
           user: response.user, 
           token: response.token 
         }));
-        toast.success('Welcome to Charity Golf!');
-        router.push('/dashboard');
+        
+        toast.success('Account created! Redirecting to secure payment...');
+
+        // 2. Trigger Stripe Checkout
+        const checkoutResponse = await startCheckout({
+          url: apiUrls.subscriptions.checkout,
+          body: {
+            plan: data.plan,
+            charityId: data.charity_id
+          }
+        });
+
+        if (checkoutResponse && checkoutResponse.url) {
+          window.location.href = checkoutResponse.url;
+        } else {
+          // If checkout fails, at least they have an account
+          router.push('/dashboard');
+        }
       }
     } catch {
       // Toast handled by hook
@@ -347,7 +366,7 @@ export default function SignupPage() {
                 </div>
 
                 <div className="flex flex-col gap-4">
-                  <CustomButton size="lg" className="w-full" loading={submitting} type="submit">
+                  <CustomButton size="lg" className="w-full" loading={submitting || checkoutLoading} type="submit">
                     Sign Up & Complete
                   </CustomButton>
                   <button type="button" onClick={prevStep} className="text-gray-500 hover:text-white text-sm font-medium">

@@ -15,8 +15,9 @@ import {
   Search,
   Bell
 } from 'lucide-react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
+import { RootState } from '@/store';
 import { logout } from '@/store/authSlice';
 import { usePostQuery } from '@/hooks/useApi';
 import { apiUrls } from '@/lib/apiUrls';
@@ -40,6 +41,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const dispatch = useDispatch();
   const router = useRouter();
+  const { user } = useSelector((state: RootState) => state.auth);
   const { postQuery } = usePostQuery();
 
   const handleLogout = async () => {
@@ -69,12 +71,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         <div className="px-4 mb-8">
            <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                 <ShieldCheck className="w-5 h-5 text-blue-500" />
+              <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center overflow-hidden">
+                 {user?.avatar_url ? (
+                   <img src={user.avatar_url} alt={user.full_name || ''} className="w-full h-full object-cover" />
+                 ) : (
+                   <ShieldCheck className="w-5 h-5 text-blue-500" />
+                 )}
               </div>
               <div>
-                 <div className="text-xs font-bold text-white leading-none mb-1">Super Admin</div>
-                 <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Active Session</div>
+                 <div className="text-xs font-bold text-white leading-none mb-1">{user?.full_name || 'Admin'}</div>
+                 <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Super Admin</div>
               </div>
            </div>
         </div>
@@ -140,8 +146,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <div className="w-px h-6 bg-white/10 mx-2" />
               
               <div className="flex items-center gap-3">
-                 <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center font-bold text-blue-500">
-                    AD
+                 <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center font-bold text-blue-500 uppercase">
+                    {(user?.full_name || 'AD').substring(0, 2)}
                  </div>
               </div>
            </div>

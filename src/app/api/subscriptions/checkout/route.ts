@@ -4,13 +4,21 @@ import { createClient } from '@/lib/supabase/server';
 
 export async function POST(req: Request) {
   try {
-    const { priceId, successUrl, cancelUrl, charityId } = await req.json();
+    const { plan, charityId } = await req.json();
     const supabase = await createClient();
     
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const priceId = plan === 'yearly' 
+      ? process.env.STRIPE_YEARLY_PRICE_ID 
+      : process.env.STRIPE_MONTHLY_PRICE_ID;
+
+    if (!priceId) {
+      return NextResponse.json({ error: 'Price ID not configured' }, { status: 500 });
     }
 
     // Create or retrieve Stripe customer

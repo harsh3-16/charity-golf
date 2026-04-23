@@ -7,6 +7,7 @@ interface User {
   avatar_url?: string;
   role: 'user' | 'admin';
   subscription_status: 'active' | 'inactive' | 'lapsed';
+  subscription_plan?: 'monthly' | 'yearly';
 }
 
 interface AuthState {
