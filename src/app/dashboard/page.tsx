@@ -14,8 +14,9 @@ import {
   Percent
 } from 'lucide-react';
 import { CustomButton } from '@/components/shared/CustomButton';
-import { useGetQuery, usePatchQuery } from '@/hooks/useApi';
+import { useGetQuery, usePatchQuery, usePostQuery } from '@/hooks/useApi';
 import { CharityCard } from '@/components/shared/CharityCard';
+import { CustomAlertModal } from '@/components/shared/CustomAlertModal';
 import { toast } from '@/components/shared/Toast';
 import { apiUrls } from '@/lib/apiUrls';
 import { Skeleton } from '@/components/shared/Skeleton';
@@ -51,6 +52,13 @@ export default function DashboardPage() {
     loading: updatingCharity 
   } = usePatchQuery();
 
+  const {
+    postQuery: cancelSubscription,
+    loading: cancelling
+  } = usePostQuery();
+
+  const [showCancelModal, setShowCancelModal] = useState(false);
+
   useEffect(() => {
     const controller = new AbortController();
     getSubStatus({ url: apiUrls.subscriptions.status, signal: controller.signal });
@@ -77,6 +85,17 @@ export default function DashboardPage() {
       onSuccess: () => {
         toast.success('Charity settings updated!');
         setShowCharityModal(false);
+        getSubStatus({ url: apiUrls.subscriptions.status });
+      }
+    });
+  };
+
+  const handleCancelSubscription = async () => {
+    await cancelSubscription({
+      url: apiUrls.subscriptions.cancel,
+      onSuccess: () => {
+        toast.success('Your subscription will be cancelled at the end of the period.');
+        setShowCancelModal(false);
         getSubStatus({ url: apiUrls.subscriptions.status });
       }
     });
@@ -136,6 +155,16 @@ export default function DashboardPage() {
           <p className="text-gray-500 mt-1">Here's what's happening with your impact and games this month.</p>
         </div>
         <div className="flex items-center gap-3">
+           {subStatus?.status === 'active' && (
+             <CustomButton 
+               variant="outline" 
+               size="sm" 
+               className="text-red-500 border-red-500/20 hover:bg-red-500/10"
+               onClick={() => setShowCancelModal(true)}
+             >
+               Cancel Subscription
+             </CustomButton>
+           )}
            <CustomButton variant="outline" size="sm">Download Report</CustomButton>
            <Link href="/dashboard/scores">
              <CustomButton size="sm">Enter Score</CustomButton>
@@ -382,6 +411,16 @@ export default function DashboardPage() {
           </div>
         )}
       </AnimatePresence>
+      <CustomAlertModal
+        isOpen={showCancelModal}
+        title="Cancel Subscription?"
+        message="Are you sure you want to cancel your subscription? You will lose access to monthly draws and score tracking at the end of your current billing period."
+        confirmLabel="Yes, Cancel My Subscription"
+        variant="danger"
+        loading={cancelling}
+        onConfirm={handleCancelSubscription}
+        onCancel={() => setShowCancelModal(false)}
+      />
     </div>
   );
 }

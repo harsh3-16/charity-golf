@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Lock, User, Heart, ArrowRight, ArrowLeft, AlertCircle } from 'lucide-react';
+import { Mail, Lock, User, Heart, ArrowRight, ArrowLeft, AlertCircle, Percent } from 'lucide-react';
 import Link from 'next/link';
 import { CustomButton } from '@/components/shared/CustomButton';
 import { CharityCard } from '@/components/shared/CharityCard';
@@ -35,6 +35,7 @@ const signupSchema = z.object({
   charity_id: z
     .string()
     .min(1, 'Please select a charity'),
+  charity_contribution_percentage: z.number().min(10).max(50),
   plan: z.enum(['monthly', 'yearly']),
 });
 
@@ -63,12 +64,14 @@ export default function SignupPage() {
       email: '',
       password: '',
       charity_id: '',
+      charity_contribution_percentage: 10,
       plan: 'monthly',
     },
   });
 
   const selectedCharity = watch('charity_id');
   const selectedPlan = watch('plan');
+  const selectedPercentage = watch('charity_contribution_percentage');
 
   React.useEffect(() => {
     if (step === 2) {
@@ -255,6 +258,36 @@ export default function SignupPage() {
                   {(!charities || charities.length === 0) && [...Array(3)].map((_, i) => (
                     <div key={i} className="h-[320px] rounded-2xl bg-white/[0.02] border border-white/5 animate-pulse" />
                   ))}
+                </div>
+
+                {/* Contribution Slider */}
+                <div className="max-w-2xl mx-auto mb-16 p-8 rounded-3xl bg-emerald-500/5 border border-emerald-500/10">
+                   <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest flex items-center gap-2 mb-6">
+                      <Percent className="w-4 h-4 text-emerald-500" />
+                      Optional: Increase Your Impact (Min 10%)
+                   </h3>
+                   <div className="flex items-center gap-8">
+                      <div className="flex-1 space-y-4">
+                         <input 
+                           type="range" 
+                           min="10" 
+                           max="50" 
+                           step="5"
+                           value={selectedPercentage}
+                           onChange={(e) => setValue('charity_contribution_percentage', parseInt(e.target.value))}
+                           className="w-full h-2 bg-white/10 rounded-full appearance-none cursor-pointer accent-emerald-500"
+                         />
+                         <div className="flex justify-between text-[10px] font-black text-gray-600 uppercase tracking-widest">
+                            <span>10% (Standard)</span>
+                            <span>25% Impact</span>
+                            <span>50% Max Impact</span>
+                         </div>
+                      </div>
+                      <div className="w-24 h-24 rounded-2xl bg-black border border-emerald-500/20 flex flex-col items-center justify-center">
+                         <span className="text-3xl font-black text-emerald-500 outfit">{selectedPercentage}%</span>
+                         <span className="text-[8px] font-bold text-gray-500 uppercase">Donation</span>
+                      </div>
+                   </div>
                 </div>
 
                 <div className="flex flex-col md:flex-row items-center justify-center gap-4">

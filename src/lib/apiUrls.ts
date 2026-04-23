@@ -4,6 +4,8 @@ export const apiUrls = {
     register: '/api/auth/signup',
     logout: '/api/auth/logout',
     me: '/api/auth/me',
+    forgotPassword: '/api/auth/forgot-password',
+    resetPassword: '/api/auth/reset-password',
   },
   scores: {
     list: '/api/scores',
@@ -36,6 +38,7 @@ export const apiUrls = {
     checkout: '/api/subscriptions/checkout',
     portal: '/api/subscriptions/portal',
     status: '/api/subscriptions/status',
+    cancel: '/api/subscriptions/cancel',
   },
   users: {
     updateCharity: '/api/users/charity',

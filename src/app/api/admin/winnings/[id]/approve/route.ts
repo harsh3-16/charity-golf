@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { sendVerificationStatusEmail } from '@/lib/email';
 
 export async function PATCH(
   req: Request,
@@ -32,7 +33,7 @@ export async function PATCH(
         reviewed_at: new Date().toISOString()
       })
       .eq('id', id)
-      .select('draw_entry_id')
+      .select('draw_entry_id, users(email)')
       .single();
 
     if (verError) throw verError;
@@ -44,6 +45,17 @@ export async function PATCH(
       .eq('id', verification.draw_entry_id);
 
     if (entryError) console.error('[admin_winnings_approve] Error updating entry:', entryError);
+
+    // 4. Notify user
+    const userEmail = Array.isArray(verification?.users) 
+      ? verification.users[0]?.email 
+      : (verification?.users as any)?.email;
+
+    if (userEmail) {
+      await sendVerificationStatusEmail(userEmail, 'approved').catch(err => {
+        console.error('[admin_winnings_approve] Email error:', err);
+      });
+    }
 
     return NextResponse.json({ success: true });
   } catch (err: any) {
