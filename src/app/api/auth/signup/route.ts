@@ -5,7 +5,15 @@ import { sendWelcomeEmail } from '@/lib/email';
 
 export async function POST(request: Request) {
   try {
-    const { email: rawEmail, password, name: rawName, charity_id, plan } = await request.json();
+    const { 
+      email: rawEmail, 
+      password, 
+      name: rawName, 
+      charity_id, 
+      plan, 
+      charity_contribution_percentage 
+    } = await request.json();
+    
     const email = rawEmail?.trim();
     const name = rawName?.trim();
     const cookieStore = await cookies();
@@ -34,8 +42,9 @@ export async function POST(request: Request) {
       options: {
         data: {
           full_name: name,
-          charity_id: charity_id,
-          plan: plan,
+          charity_id: charity_id || null, // Ensure null if empty
+          plan: plan || 'monthly',         // Default to monthly if missing
+          charity_contribution_percentage: charity_contribution_percentage || 10,
         },
       },
     });
